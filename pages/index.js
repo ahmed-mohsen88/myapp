@@ -1,15 +1,14 @@
-import axios from "axios";
 import Products from "../components/product/Products";
 import Styles from "../styles/index.module.scss";
 import Head from "next/head";
 
-const index = ({ products }) => {
+const index = (props) => {
   return (
     <main className={Styles.app + " container"}>
       <Head>
         <title>The Best Store</title>
       </Head>
-      {products.map((product) => {
+      {props.products.map((product) => {
         return <Products product={product} key={product.id} />;
       })}
     </main>
@@ -18,8 +17,8 @@ const index = ({ products }) => {
 
 export default index;
 
-export const getStaticProps = async () => {
-  const req = await axios.get("https://fakestoreapi.com/products");
-  const { data: products } = req;
-  return { props: { products } };
-};
+export async function getStaticProps() {
+  const req = await fetch("https://fakestoreapi.com/products");
+  const data = await req.json();
+  return { props: { products: data } };
+}

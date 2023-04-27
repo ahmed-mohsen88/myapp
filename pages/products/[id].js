@@ -1,16 +1,13 @@
-import { useRecoilValue } from "recoil";
-import { productState } from "../../components/state/State";
 import Image from "next/image";
 import Styles from "../../styles/singleProduct.module.scss";
 import { BsFillCartPlusFill } from "react-icons/bs";
 
-const SingleProduct = () => {
-  const getProductState = useRecoilValue(productState);
+const SingleProduct = (props) => {
   const rating = () => {
     let rat = "";
     for (
       let index = 0;
-      index < Math.floor(getProductState?.rating?.rate);
+      index < Math.floor(props?.rating?.rate);
       index++
     ) {
       rat += "⭐";
@@ -23,19 +20,19 @@ const SingleProduct = () => {
       <div className={Styles.mainDetails + " container"}>
         <div className={Styles.left}>
           <div className={Styles.title}>
-            <p>{getProductState?.title}</p>
+            <p>{props?.title}</p>
           </div>
           <div>
             <span>Category: </span>
-            <p>{getProductState?.category}</p>
+            <p>{props?.category}</p>
           </div>
           <div>
             <span>Description: </span>
-            <p>{getProductState?.description}</p>
+            <p>{props?.description}</p>
           </div>
           <div>
             <span>Price: </span>
-            <p>{getProductState?.price} $</p>
+            <p>{props?.price} $</p>
           </div>
           <div className={Styles.addToCart}>
             <button type="button">
@@ -48,19 +45,41 @@ const SingleProduct = () => {
         </div>
         <div className={Styles.right}>
           <Image
-            src={getProductState?.image}
+            src={props?.image}
             width={400}
             height={400}
-            alt={getProductState.id}
+            alt={props.id}
           />
           <p className={Styles?.rating}>{rating()}</p>
           <p className={Styles?.like}>
-            {getProductState?.rating?.count} People Like
+            {props?.rating?.count} People Like
           </p>
         </div>
       </div>
     </section>
   );
 };
+
+export async function getStaticPaths() {
+  const res = await fetch("https://fakestoreapi.com/products");
+  const data = await res.json();
+  const paths = data.map((product) => {
+    return {
+      params: { id: `${product.id}` },
+    };
+  });
+  return {
+    paths: paths,
+    fallback: false,
+  };
+}
+
+export async function getStaticProps(context) {
+  const req = await fetch(
+    `https://fakestoreapi.com/products/${context.params.id}`
+  );
+  const data = await req.json();
+  return { props: data };
+}
 
 export default SingleProduct;
